@@ -218,3 +218,25 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Project-specific environment files
+.env.*
+!.env.example
+
+# Local datasets
+/data/raw/*
+!/data/raw/.gitkeep
+
+/data/processed/*
+!/data/processed/.gitkeep
+
+/data/splits/*
+!/data/splits/.gitkeep
+
+# Generated model files
+/models/*
+!/models/.gitkeep
+
+# Operating system files
+.DS_Store
+Thumbs.db
