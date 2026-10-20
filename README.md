@@ -118,6 +118,42 @@ modeller och hemliga miljövariabler utanför versionshanteringen.
 
 ### Projektets körning
 
-Detta avsnitt beskriver installation och kontroll av utvecklingsmiljön.
-Kommandon för datahantering, modellträning, utvärdering och demonstration
-läggs till när respektive del har implementerats.
+### Läsa in Yelp-data
+
+Hämtning, uppackning och kontroll av datakällan beskrivs i
+`docs/data_source.md`. Kör från projektroten:
+
+```powershell
+.\.venv\Scripts\python.exe src/load_data.py --download
+.\.venv\Scripts\python.exe src/load_data.py
+.\.venv\Scripts\python.exe -m pytest
+```
+
+`--download` hämtar UCI-arkivet och sparar `data/raw/yelp_labelled.txt`
+lokalt och oförändrad. Nästa kommando läser in filen och kontrollerar
+1 000 rader och 500 recensioner per klass.
+
+### Kontrollera datakvalitet
+
+```powershell
+.\.venv\Scripts\python.exe src/prepare_data.py
+```
+
+Kommandot läser den lokala Yelp-filen, tar bort exakta dubbletter och
+skriver `data/processed/reviews.csv` samt `reports/data_quality.md`.
+Originaltexten behålls. Nära dubbletter får ett gemensamt grupp-ID.
+
+### Dela data
+
+```powershell
+.\.venv\Scripts\python.exe src/split_data.py
+```
+
+Kommandot läser `data/processed/reviews.csv` och skriver
+`data/splits/train.csv`, `data/splits/validation.csv` och
+`data/splits/test.csv`. Uppdelningen använder `random_state=42`,
+stratifieras på klass och håller samma `duplicate_group_id` i en delmängd.
+Analysen skrivs till `reports/data_summary.md`.
+
+Kommandon för modellträning, utvärdering och demonstration läggs till
+när respektive del har implementerats.
