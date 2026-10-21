@@ -157,3 +157,51 @@ Analysen skrivs till `reports/data_summary.md`.
 
 Kommandon för modellträning, utvärdering och demonstration läggs till
 när respektive del har implementerats.
+
+
+### Majoritetsbaseline (uppgift 05)
+
+`src/train_baseline.py` väljer den vanligaste klassen enbart från
+`data/splits/train.csv`. Vid lika antal väljs klass `0`.
+Recensionernas text används inte. Valideringsetiketterna påverkar inte
+vilken klass som väljs.
+
+Körningen förutsätter att den granskade datauppdelningen är klar och att
+hanteringen av eventuella personuppgifter är avstämd enligt skolans krav.
+Kör därefter från projektroten:
+
+```powershell
+.\.venv\Scripts\python.exe src/train_baseline.py
+```
+
+Kommandot skapar:
+
+- `models/baseline.json`: vald klass och träningsmaterialets klassantal.
+- `data/processed/baseline_validation_predictions.csv`: en prediktion per
+  valideringsrad, med kolumnerna `review_id`, `y_true`, `y_pred`, `model` och `split`.
+- `reports/baseline.md`: metod, klassantal och information om utdata.
+
+Modellfilen och prediktionerna sparas lokalt och omfattas av befintlig
+`.gitignore`. Rapporten versionshanteras efter körningen på projektets data.
+
+Baseline ger en jämförelsenivå för att undersöka om textanalys förbättrar
+klassificeringen. Mätvärden beräknas i den gemensamma utvärderingen.
+Testdata läses inte av träningskommandot. Vid sluttestet kan
+`load_baseline` och `predict_baseline` återanvända den sparade klassen
+utan att anpassa modellen igen.
+
+Testa baseline separat:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest tests/test_train_baseline.py -q
+```
+
+Testerna använder syntetiska testfall och kräver inga Yelp-filer.
+De kontrollerar bland annat majoritetsval, lika klassantal, prediktionsformat,
+överlapp mellan delmängder och återanvändning av sparad baseline.
+Syntetiska testfall används endast för kodkontroll; projektets resultat
+ska baseras på Yelp-datan.
+
+### Användning av generativ AI
+
+Generativ AI har använts som stöd för planering, kodgranskning och dokumentation. 
