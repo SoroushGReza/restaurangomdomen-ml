@@ -201,7 +201,7 @@ def _remove_exact_duplicates(
                         label=str(label),
                         detail=(
                             "identisk text hos review_id "
-                            f"{listed_ids}, etiketter {listed_labels}: {text}"
+                            f"{listed_ids}, etiketter {listed_labels}"
                         ),
                     )
                 )
@@ -215,7 +215,7 @@ def _remove_exact_duplicates(
                     review_id=review_id,
                     reason="exakt dubblett med samma etikett",
                     label=str(label),
-                    detail=f"samma text som review_id {first_id}: {text}",
+                    detail=f"samma text som review_id {first_id}",
                 )
             )
     return kept, removals
@@ -296,6 +296,12 @@ def prepare_reviews(reviews: pd.DataFrame) -> tuple[pd.DataFrame, PreparationRes
         max_text_length=None if lengths.empty else int(lengths.max()),
     )
     return prepared, result
+
+
+def _name_hit_sentence(count: int) -> str:
+    if count == 1:
+        return "1 möjlig namnträff har identifierats."
+    return f"{count} möjliga namnträffar har identifierats."
 
 
 def _cell(value: object) -> str:
@@ -398,6 +404,7 @@ def render_quality_report(result: PreparationResult) -> str:
             "- Exakt samma text med motstridiga etiketter tas bort helt och räknas nedan.",
             "- Texter som blir lika först efter normaliseringen är nära dubbletter.",
             "  Originaltexterna behålls och raderna får ett gemensamt `duplicate_group_id`.",
+            "- Rapporten redovisar `review_id`, etikett och orsak, inte recensionstexten.",
             "",
         ]
     )
@@ -435,9 +442,11 @@ def render_quality_report(result: PreparationResult) -> str:
             ]
         )
         for group in result.near_duplicate_groups:
-            lines.append(f"- Grupp `{group.duplicate_group_id}`: review_id {', '.join(map(str, group.review_ids))}.")
-            for review_id, label, text in zip(group.review_ids, group.labels, group.texts, strict=True):
-                lines.append(f"  - `{review_id}`, etikett {label}: {_cell(text)}")
+            review_ids = ", ".join(map(str, group.review_ids))
+            labels = ", ".join(map(str, group.labels))
+            lines.append(
+                f"- Grupp `{group.duplicate_group_id}`: review_id {review_ids}, etiketter {labels}."
+            )
         lines.append("")
         if mixed_groups:
             lines.extend(
@@ -467,10 +476,20 @@ def render_quality_report(result: PreparationResult) -> str:
             f"| Lång sifferföljd | {personal.long_number_count} |",
             f"| Möjligt personnamn | {personal.person_reference_count} |",
             "",
-            "Träffarnas text publiceras inte. Möjliga personnamn ska tas upp med",
-            "läraren innan meningarna används som exempel i redovisning eller presentation,",
-            "enligt skolans hantering av personuppgifter. Raderna är kvar i underlaget",
-            "eftersom kontrollen inte kräver att de tas bort.",
+            "Skolans krav gäller behandling av personuppgifter i projektet, inte enbart",
+            "publicering av exempel. Träffarnas text skrivs inte ut i den här rapporten.",
+            _name_hit_sentence(personal.person_reference_count),
+        ]
+    )
+    if personal.person_reference_count:
+        lines.extend(
+            [
+                "Gruppen behöver stämma av med läraren hur dessa ska hanteras innan fortsatt behandling.",
+                "Raderna ligger kvar i datafilerna tills den avstämningen är gjord.",
+            ]
+        )
+    lines.extend(
+        [
             "",
             "## Kvarstående kvalitetsproblem",
             "",
@@ -493,8 +512,8 @@ def render_quality_report(result: PreparationResult) -> str:
         lines.extend(
             [
                 "",
-                "Möjliga personnamn är det kvarstående förhållande som behöver ett beslut",
-                "tillsammans med läraren innan exempel publiceras.",
+                "Hantering av de möjliga namnträffarna är inte avgjord.",
+                "Gruppen behöver stämma av med läraren innan fortsatt behandling.",
             ]
         )
     lines.extend(

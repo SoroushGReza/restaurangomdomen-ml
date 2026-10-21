@@ -83,6 +83,9 @@ def test_near_duplicates_with_different_labels_stay_and_are_reported() -> None:
     report = prepare_data.render_quality_report(result)
     assert result.near_duplicate_groups[0].labels == (1, 0)
     assert "etikettkonflikten är ett kvarstående kvalitetsproblem" in report
+    assert "Grupp `1`: review_id 1, 2, etiketter 1, 0." in report
+    assert "Good." not in report
+    assert "good." not in report
 
 
 def test_empty_missing_and_invalid_rows_are_removed() -> None:
@@ -184,6 +187,55 @@ def test_official_yelp_preparation_removes_only_exact_duplicates() -> None:
         assert int(row.label) == int(original_by_id.loc[row.review_id, "label"])
 
     report = prepare_data.render_quality_report(result)
-    assert "I love this place." in report
+    assert "I love this place." not in report
+    assert "The food was terrible." not in report
+    assert "I won't be back." not in report
+    assert "I would not recommend this place." not in report
+    assert "| 815 | 1 | exakt dubblett med samma etikett | samma text som review_id 335 |" in report
     assert "Möjligt personnamn | 4" in report
-    assert "publiceras inte" in report
+    assert "4 möjliga namnträffar har identifierats." in report
+    assert "behandling av personuppgifter" in report
+    assert "innan fortsatt behandling" in report
+    assert "godkännande har lämnats" not in report
+
+
+def test_report_omits_personal_data_in_duplicate_sections() -> None:
+    prepared, result = prepare_data.prepare_reviews(
+        _reviews(
+            [
+                (10, "Alex our server was kind.", 1),
+                (11, "Alex our server was kind.", 1),
+                (20, "Mail me at student@example.com please.", 0),
+                (21, "Mail me at student@example.com please.", 1),
+                (30, "Thanks to Sam T. for a great meal.", 1),
+                (31, "thanks  to sam t. for a great meal.", 1),
+                (40, "Call 070-123 45 67 tonight.", 0),
+                (41, "call  070-123 45 67 tonight.", 1),
+            ]
+        )
+    )
+    report = prepare_data.render_quality_report(result)
+    kept = prepared.set_index("review_id")
+
+    assert kept.loc[10, "text"] == "Alex our server was kind."
+    assert kept.loc[30, "text"] == "Thanks to Sam T. for a great meal."
+    assert int(kept.loc[30, "duplicate_group_id"]) == int(kept.loc[31, "duplicate_group_id"])
+    assert 11 not in kept.index
+    assert 20 not in kept.index
+    assert 21 not in kept.index
+
+    for sensitive in (
+        "Alex our server was kind.",
+        "Alex",
+        "student@example.com",
+        "Sam T.",
+        "sam t.",
+        "070-123 45 67",
+    ):
+        assert sensitive not in report
+
+    assert "| 11 | 1 | exakt dubblett med samma etikett | samma text som review_id 10 |" in report
+    assert "| 20 | 0 | motstridiga etiketter | identisk text hos review_id 20, 21, etiketter 0, 1 |" in report
+    assert "| 21 | 1 | motstridiga etiketter | identisk text hos review_id 20, 21, etiketter 0, 1 |" in report
+    assert "Grupp `30`: review_id 30, 31, etiketter 1, 1." in report
+    assert "Grupp `40`: review_id 40, 41, etiketter 0, 1." in report

@@ -49,7 +49,9 @@ Träningstexterna är korta recensionsmeningar. Medianlängden är 50 tecken och
 ## Representativa träningstexter
 
 Exemplen kommer bara från träningsdata: en kort, en typisk och en lång text per klass.
-Recensioner som datakvalitetskontrollen markerade som möjliga personnamn citeras inte.
+Recensioner som datakvalitetskontrollen markerade som möjliga personnamn skrivs inte ut.
+Skolans krav gäller behandling av personuppgifter i projektet, inte enbart publicering av exempel.
+Gruppen behöver stämma av med läraren hur träffarna ska hanteras innan fortsatt behandling.
 
 | Typ | Klass | review_id | Tecken | Text |
 | --- | --- | --- | --- | --- |

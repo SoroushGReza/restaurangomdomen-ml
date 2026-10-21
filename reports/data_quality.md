@@ -35,15 +35,16 @@ Regler:
 - Exakt samma text med motstridiga etiketter tas bort helt och räknas nedan.
 - Texter som blir lika först efter normaliseringen är nära dubbletter.
   Originaltexterna behålls och raderna får ett gemensamt `duplicate_group_id`.
+- Rapporten redovisar `review_id`, etikett och orsak, inte recensionstexten.
 
 ### Exakta dubbletter med samma etikett
 
 | review_id | etikett | orsak | förklaring |
 | --- | --- | --- | --- |
-| 815 | 1 | exakt dubblett med samma etikett | samma text som review_id 335: I love this place. |
-| 817 | 0 | exakt dubblett med samma etikett | samma text som review_id 384: The food was terrible. |
-| 844 | 0 | exakt dubblett med samma etikett | samma text som review_id 381: I won't be back. |
-| 847 | 0 | exakt dubblett med samma etikett | samma text som review_id 506: I would not recommend this place. |
+| 815 | 1 | exakt dubblett med samma etikett | samma text som review_id 335 |
+| 817 | 0 | exakt dubblett med samma etikett | samma text som review_id 384 |
+| 844 | 0 | exakt dubblett med samma etikett | samma text som review_id 381 |
+| 847 | 0 | exakt dubblett med samma etikett | samma text som review_id 506 |
 
 ### Identiska texter med motstridiga etiketter
 
@@ -70,17 +71,18 @@ och `went above and beyond`.
 | Lång sifferföljd | 0 |
 | Möjligt personnamn | 4 |
 
-Träffarnas text publiceras inte. Möjliga personnamn ska tas upp med
-läraren innan meningarna används som exempel i redovisning eller presentation,
-enligt skolans hantering av personuppgifter. Raderna är kvar i underlaget
-eftersom kontrollen inte kräver att de tas bort.
+Skolans krav gäller behandling av personuppgifter i projektet, inte enbart
+publicering av exempel. Träffarnas text skrivs inte ut i den här rapporten.
+4 möjliga namnträffar har identifierats.
+Gruppen behöver stämma av med läraren hur dessa ska hanteras innan fortsatt behandling.
+Raderna ligger kvar i datafilerna tills den avstämningen är gjord.
 
 ## Kvarstående kvalitetsproblem
 
 Inga tomma texter, saknade värden eller ogiltiga etiketter återstår. Klassfördelningen är 497 negativa och 499 positiva. Textlängden är minst 11, median 51 och högst 149 tecken. Stavning och skiljetecken från källan är kvar, eftersom originaltexten bevaras.
 
-Möjliga personnamn är det kvarstående förhållande som behöver ett beslut
-tillsammans med läraren innan exempel publiceras.
+Hantering av de möjliga namnträffarna är inte avgjord.
+Gruppen behöver stämma av med läraren innan fortsatt behandling.
 
 ## Sparat resultat
 
