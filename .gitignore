@@ -240,3 +240,7 @@ __marimo__/
 # Operating system files
 .DS_Store
 Thumbs.db
+
+# Editor swap files
+*.swp
+*.swo
