@@ -100,17 +100,17 @@ Ta en ledig issue, tilldela den till dig själv och flytta den till
 
 ### Projektstruktur
 
-| Mapp | Innehåll |
-|---|---|
-| `src/` | Kod för datahantering, modeller, utvärdering och demo |
-| `data/raw/` | Lokala originaldata |
-| `data/processed/` | Lokala bearbetade data |
-| `data/splits/` | Lokala tränings-, validerings- och testdata |
-| `models/` | Lokalt sparade modeller |
-| `reports/` | Analyser och dokumenterade resultat |
-| `reports/figures/` | Diagram och resultatfigurer |
-| `docs/` | Datakälla, beslut, risker och AI-användning |
-| `tests/` | Automatiska tester |
+| Mapp               | Innehåll                                              |
+| ------------------ | ----------------------------------------------------- |
+| `src/`             | Kod för datahantering, modeller, utvärdering och demo |
+| `data/raw/`        | Lokala originaldata                                   |
+| `data/processed/`  | Lokala bearbetade data                                |
+| `data/splits/`     | Lokala tränings-, validerings- och testdata           |
+| `models/`          | Lokalt sparade modeller                               |
+| `reports/`         | Analyser och dokumenterade resultat                   |
+| `reports/figures/` | Diagram och resultatfigurer                           |
+| `docs/`            | Datakälla, beslut, risker och AI-användning           |
+| `tests/`           | Automatiska tester                                    |
 
 `.gitkeep` används för att tomma projektmappar ska följa med i Git.
 `.gitignore` håller virtuella miljöer, lokala dataset, genererade
@@ -195,7 +195,6 @@ Kommandot läser `data/processed/reviews.csv` och skriver
 `data/splits/test.csv`. Uppdelningen använder `random_state=42`,
 stratifieras på klass och håller samma `duplicate_group_id` i en delmängd.
 Analysen skrivs till `reports/data_summary.md`.
-
 
 ### Majoritetsbaseline (uppgift 05)
 
@@ -326,7 +325,7 @@ Kör hela testsviten efter att originaldatasetet har hämtats:
 .\.venv\Scripts\python.exe -m pytest -q
 ```
 
-Vid den genomförda lokala kontrollen passerade samtliga 57 tester.
+Vid den genomförda lokala kontrollen passerade samtliga 60 tester.
 
 ### Resultat och återstående utvärdering
 
@@ -386,6 +385,22 @@ Utan argument frågar programmet efter texten. Tom eller blank text ger ett
 felmeddelande. Vid en lokal körning blev svaren `positiv`, `negativ` och
 `negativ`. De svaren är illustrationer och ingår inte i testresultatet.
 
+Om modellfilen saknas visar programmet ett felmeddelande med instruktion
+om att skapa modellen genom körflödet:
+
+```powershell
+.\.venv\Scripts\python.exe src/run_pipeline.py
+```
+
+Tom eller enbart blank text avvisas innan modellen laddas.
+Vid tom text eller saknad modell avslutas kommandot med felkod 2.
+
+En annan lokal modellfil kan anges med `--model`:
+
+```powershell
+.\.venv\Scripts\python.exe src/predict.py "Great food and friendly service." --model models/tfidf_logistic_regression.joblib
+```
+
 ### Användning av generativ AI
 
-Generativ AI har använts som stöd för planering, kodgranskning och dokumentation. 
+Generativ AI har använts som stöd för planering, kodgranskning och dokumentation.
