@@ -118,6 +118,47 @@ modeller och hemliga miljövariabler utanför versionshanteringen.
 
 ### Projektets körning
 
+### Sammanhängande körflöde
+
+Kör från projektroten med projektets virtuella miljö:
+
+```powershell
+.\.venv\Scripts\python.exe src/run_pipeline.py
+```
+
+Kommandot kör befintliga skript i följande ordning:
+
+1. `load_data.py`: läser och kontrollerar originaldatan.
+2. `prepare_data.py`: förbereder data och skriver datakvalitetsrapport.
+3. `split_data.py`: skapar tränings-, validerings- och testdelar.
+4. `train_baseline.py`: tränar och sparar majoritetsbaseline.
+5. `train_model.py`: tränar textmodeller och väljer modell på valideringsdata.
+
+Om originaldatan saknas kan den hämtas i samma körning:
+
+```powershell
+.\.venv\Scripts\python.exe src/run_pipeline.py --download
+```
+
+Flödet använder samma Pythonmiljö för alla steg och avbryts om ett steg
+misslyckas. Saknad originaldata ger instruktion om att använda `--download`.
+
+Vid omkörning skrivs bearbetade data, uppdelningar, modeller och
+valideringsrapporter över. Samma data, beroenden och inställningar ska
+användas för att reproducera resultatet. Modellinställningarna ändras
+inte utifrån sluttestets resultat.
+
+Testdelen skapas vid uppdelningen men används inte för träning eller
+modellval. Slututvärdering ingår inte i körflödet utan körs uttryckligen
+med den sparade modellen:
+
+```powershell
+.\.venv\Scripts\python.exe src/final_evaluation.py
+```
+
+Tester för körflödet kontrollerar stegens ordning, Pythonmiljö,
+felhantering och att slututvärdering inte startas automatiskt.
+
 ### Läsa in Yelp-data
 
 Hämtning, uppackning och kontroll av datakällan beskrivs i
@@ -285,7 +326,7 @@ Kör hela testsviten efter att originaldatasetet har hämtats:
 .\.venv\Scripts\python.exe -m pytest -q
 ```
 
-Vid den genomförda lokala kontrollen passerade samtliga 52 tester.
+Vid den genomförda lokala kontrollen passerade samtliga 57 tester.
 
 ### Resultat och återstående utvärdering
 
@@ -303,7 +344,8 @@ Detaljerade resultat finns i `reports/baseline.md` och
 `reports/model_selection.md`. Valideringsresultaten används för modellval
 och ska inte tolkas som oberoende sluttestresultat.
 
-Slututvärdering på testdata, felanalys och demonstration beskrivs nedan.
+Slututvärdering på testdata och demonstration beskrivs nedan.
+Fördjupad felanalys återstår i en separat uppgift.
 Valideringsresultaten ska inte tolkas som oberoende sluttestresultat.
 
 ### Slututvärdering (uppgift 07 och 08)
