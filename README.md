@@ -263,8 +263,8 @@ Den beräknar:
 - Macro-F1: genomsnittet av F1 för klass 0 och klass 1.
 - Negativ recall: andelen negativa recensioner som klassificeras korrekt.
 
-Odefinierade mått sätts till 0. Utvärderingen kompletteras i uppgift 07
-med accuracy, precision/recall/F1 per klass och confusion matrix.
+Odefinierade mått sätts till 0. Accuracy, precision, recall och F1 per klass
+samt confusion matrix ingår i samma funktion och beskrivs under slututvärderingen.
 
 ### Tester
 
@@ -285,7 +285,7 @@ Kör hela testsviten efter att originaldatasetet har hämtats:
 .\.venv\Scripts\python.exe -m pytest -q
 ```
 
-Vid den genomförda lokala kontrollen passerade samtliga 45 tester.
+Vid den genomförda lokala kontrollen passerade samtliga 52 tester.
 
 ### Resultat och återstående utvärdering
 
@@ -303,7 +303,46 @@ Detaljerade resultat finns i `reports/baseline.md` och
 `reports/model_selection.md`. Valideringsresultaten används för modellval
 och ska inte tolkas som oberoende sluttestresultat.
 
-Slututvärdering på testdata, felanalys och demonstration återstår.
+Slututvärdering på testdata, felanalys och demonstration beskrivs nedan.
+Valideringsresultaten ska inte tolkas som oberoende sluttestresultat.
+
+### Slututvärdering (uppgift 07 och 08)
+
+`src/evaluate.py` beräknar macro-F1, negativ recall, accuracy samt precision,
+recall och F1 per klass. Confusion matrix har klassordningen `[0, 1]`,
+med verklig klass på raderna och förutsagd klass i kolumnerna.
+Prediktioner matchas via `review_id`.
+
+När modellvalet är låst körs de sparade modellerna på testdata:
+
+```powershell
+.\.venv\Scripts\python.exe src/final_evaluation.py
+```
+
+Kommandot tränar inte om modellerna och skriver:
+
+- `reports/metrics_test.csv`: enbart testresultat.
+- `reports/results.md`: metod, inställningar, jämförelse och begränsningar.
+- `reports/figures/`: confusion matrix för respektive modell och ett jämförelsediagram.
+
+Modellinställningarna ändras inte efter att testresultatet har setts.
+
+### Demonstration av en ny recension
+
+`src/predict.py` laddar den sparade TF-IDF-pipelinen och klassificerar en
+engelsk recension som `positiv` eller `negativ`. Modellen har ingen neutral
+klass och tränas inte om. Exemplen nedan är illustrationer och ingår inte i
+den uppmätta testprestandan.
+
+```powershell
+.\.venv\Scripts\python.exe src/predict.py "The food was fresh and the service was excellent."
+.\.venv\Scripts\python.exe src/predict.py "The meal was cold and the waiter ignored us."
+.\.venv\Scripts\python.exe src/predict.py "The food was fine but we waited a long time."
+```
+
+Utan argument frågar programmet efter texten. Tom eller blank text ger ett
+felmeddelande. Vid en lokal körning blev svaren `positiv`, `negativ` och
+`negativ`. De svaren är illustrationer och ingår inte i testresultatet.
 
 ### Användning av generativ AI
 
