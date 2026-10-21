@@ -155,5 +155,156 @@ Kommandot läser `data/processed/reviews.csv` och skriver
 stratifieras på klass och håller samma `duplicate_group_id` i en delmängd.
 Analysen skrivs till `reports/data_summary.md`.
 
-Kommandon för modellträning, utvärdering och demonstration läggs till
-när respektive del har implementerats.
+
+### Majoritetsbaseline (uppgift 05)
+
+`src/train_baseline.py` väljer den vanligaste klassen enbart från
+`data/splits/train.csv`. Vid lika antal väljs klass `0`.
+Recensionernas text används inte. Valideringsetiketterna påverkar inte
+vilken klass som väljs.
+
+Körningen förutsätter att den granskade datauppdelningen är klar och att
+hanteringen av eventuella personuppgifter är avstämd enligt skolans krav.
+Kör därefter från projektroten:
+
+```powershell
+.\.venv\Scripts\python.exe src/train_baseline.py
+```
+
+Kommandot skapar:
+
+- `models/baseline.json`: vald klass och träningsmaterialets klassantal.
+- `data/processed/baseline_validation_predictions.csv`: en prediktion per
+  valideringsrad, med kolumnerna `review_id`, `y_true`, `y_pred`, `model` och `split`.
+- `reports/baseline.md`: metod, klassantal och information om utdata.
+
+Modellfilen och prediktionerna sparas lokalt och omfattas av befintlig
+`.gitignore`. Rapporten versionshanteras efter körningen på projektets data.
+
+Baseline ger en jämförelsenivå för att undersöka om textanalys förbättrar
+klassificeringen. Mätvärden beräknas i den gemensamma utvärderingen.
+Testdata läses inte av träningskommandot. Vid sluttestet kan
+`load_baseline` och `predict_baseline` återanvända den sparade klassen
+utan att anpassa modellen igen.
+
+Testa baseline separat:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest tests/test_train_baseline.py -q
+```
+
+Testerna använder syntetiska testfall och kräver inga Yelp-filer.
+De kontrollerar bland annat majoritetsval, lika klassantal, prediktionsformat,
+överlapp mellan delmängder och återanvändning av sparad baseline.
+Syntetiska testfall används endast för kodkontroll; projektets resultat
+ska baseras på Yelp-datan.
+
+### TF-IDF och logistisk regression (uppgift 06)
+
+`src/train_model.py` jämför två textmodeller:
+
+- TF-IDF med enskilda ord: `ngram_range=(1, 1)`.
+- TF-IDF med enskilda ord och ordpar: `ngram_range=(1, 2)`.
+
+Båda använder en scikit-learn Pipeline med TfidfVectorizer och
+LogisticRegression. Endast recensionens text används som indata.
+TF-IDF och klassificeraren anpassas enbart till träningsmaterialet.
+
+Gemensamma inställningar är `C=1.0`, `max_iter=1000`,
+`random_state=42` och `stop_words=None`.
+
+Kör efter dataförberedelsen och uppdelningen:
+
+```powershell
+.\.venv\Scripts\python.exe src/train_model.py
+```
+
+Modellerna jämförs på samma valideringsdata. Högst macro-F1 avgör
+modellvalet. Vid lika värde väljs högre recall för negativa recensioner
+(klass 0), därefter den enklare modellen med enskilda ord.
+
+Majoritetsbaseline utvärderas också på samma valideringsrader.
+Dess majoritetsklass beräknas från samma träningsetiketter som tidigare.
+
+Kommandot skapar:
+
+- `models/tfidf_logistic_regression.joblib`: den valda, tränade pipelinen.
+- `data/processed/tfidf_unigram_validation_predictions.csv`:
+  valideringsprediktioner för enskilda ord.
+- `data/processed/tfidf_unigram_bigram_validation_predictions.csv`:
+  valideringsprediktioner för enskilda ord och ordpar.
+- `data/processed/model_validation_predictions.csv`:
+  valideringsprediktionerna från den valda modellen.
+- `reports/model_selection.md`: inställningar, underlag,
+  valideringsresultat, jämförelse med baseline och modellval.
+
+Prediktionsfilerna använder samma kolumner som baseline:
+`review_id`, `y_true`, `y_pred`, `model` och `split`.
+
+Modell och prediktioner sparas lokalt och ignoreras av Git.
+Rapporten versionshanteras.
+
+Den sparade pipelinen förblir tränad enbart på träningsdelen.
+Ingen omträning på tränings- och valideringsdata tillsammans görs.
+Testdata läses inte av detta kommando. Vid sluttestet ska den sparade
+pipelinen återanvändas utan ny träning.
+
+### Gemensamma mått för modellval
+
+`src/evaluate.py` innehåller `evaluate_predictions`, som används för
+både baseline och textmodellerna.
+
+Funktionen matchar prediktioner mot facit via `review_id` och kontrollerar
+bland annat saknade eller duplicerade ID:n, felaktigt facit och ogiltiga
+prediktioner.
+
+Den beräknar:
+
+- Macro-F1: genomsnittet av F1 för klass 0 och klass 1.
+- Negativ recall: andelen negativa recensioner som klassificeras korrekt.
+
+Odefinierade mått sätts till 0. Utvärderingen kompletteras i uppgift 07
+med accuracy, precision/recall/F1 per klass och confusion matrix.
+
+### Tester
+
+Kör testerna för baseline, textmodell och modellval:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest tests/test_train_baseline.py tests/test_train_model.py -q
+```
+
+Dessa tester använder syntetiska exempel och kräver inte originaldatasetet.
+De kontrollerar bland annat mått mot handräknade värden, modellvalets
+prioriteringsordning, skydd mot dataläckage, prediktionsformat och
+återladdning av sparad modell.
+
+Kör hela testsviten efter att originaldatasetet har hämtats:
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -q
+```
+
+Vid den genomförda lokala kontrollen passerade samtliga 45 tester.
+
+### Resultat och återstående utvärdering
+
+Efter borttagning av fyra dubbletter återstår 996 recensioner:
+
+- Träning: 597.
+- Validering: 199.
+- Test: 200.
+
+Majoritetsbaseline väljer klass 1 utifrån 298 negativa och 299 positiva
+träningsrecensioner. Modellvalet på valideringsdata valde
+`tfidf_unigram_bigram`.
+
+Detaljerade resultat finns i `reports/baseline.md` och
+`reports/model_selection.md`. Valideringsresultaten används för modellval
+och ska inte tolkas som oberoende sluttestresultat.
+
+Slututvärdering på testdata, felanalys och demonstration återstår.
+
+### Användning av generativ AI
+
+Generativ AI har använts som stöd för planering, kodgranskning och dokumentation. 
