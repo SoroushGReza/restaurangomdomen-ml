@@ -51,7 +51,7 @@ inte, för att inte sprida mer recensionstext än som behövs för analysen.
 
 ### Missade negativa recensioner
 
-1. **review_id 142.** Verklig etikett 0, prediktion 1, sannolikhet för klass 1: 0,557.
+1. **review_id 142.** Verklig etikett 0, prediktion 1, sannolikhet för klass 1: 0,580.
    Utdrag: "wasn't helpful or friendly".
    "friendly" ger det starkaste positiva bidraget. "wasn" drar åt negativt, men
    svagare. Vektoriseraren behåller inte det ensamma t:et i "wasn't".
