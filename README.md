@@ -100,23 +100,64 @@ Ta en ledig issue, tilldela den till dig själv och flytta den till
 
 ### Projektstruktur
 
-| Mapp | Innehåll |
-|---|---|
-| `src/` | Kod för datahantering, modeller, utvärdering och demo |
-| `data/raw/` | Lokala originaldata |
-| `data/processed/` | Lokala bearbetade data |
-| `data/splits/` | Lokala tränings-, validerings- och testdata |
-| `models/` | Lokalt sparade modeller |
-| `reports/` | Analyser och dokumenterade resultat |
-| `reports/figures/` | Diagram och resultatfigurer |
-| `docs/` | Datakälla, beslut, risker och AI-användning |
-| `tests/` | Automatiska tester |
+| Mapp               | Innehåll                                              |
+| ------------------ | ----------------------------------------------------- |
+| `src/`             | Kod för datahantering, modeller, utvärdering och demo |
+| `data/raw/`        | Lokala originaldata                                   |
+| `data/processed/`  | Lokala bearbetade data                                |
+| `data/splits/`     | Lokala tränings-, validerings- och testdata           |
+| `models/`          | Lokalt sparade modeller                               |
+| `reports/`         | Analyser och dokumenterade resultat                   |
+| `reports/figures/` | Diagram och resultatfigurer                           |
+| `docs/`            | Datakälla, beslut, risker och AI-användning           |
+| `tests/`           | Automatiska tester                                    |
 
 `.gitkeep` används för att tomma projektmappar ska följa med i Git.
 `.gitignore` håller virtuella miljöer, lokala dataset, genererade
 modeller och hemliga miljövariabler utanför versionshanteringen.
 
 ### Projektets körning
+
+### Sammanhängande körflöde
+
+Kör från projektroten med projektets virtuella miljö:
+
+```powershell
+.\.venv\Scripts\python.exe src/run_pipeline.py
+```
+
+Kommandot kör befintliga skript i följande ordning:
+
+1. `load_data.py`: läser och kontrollerar originaldatan.
+2. `prepare_data.py`: förbereder data och skriver datakvalitetsrapport.
+3. `split_data.py`: skapar tränings-, validerings- och testdelar.
+4. `train_baseline.py`: tränar och sparar majoritetsbaseline.
+5. `train_model.py`: tränar textmodeller och väljer modell på valideringsdata.
+
+Om originaldatan saknas kan den hämtas i samma körning:
+
+```powershell
+.\.venv\Scripts\python.exe src/run_pipeline.py --download
+```
+
+Flödet använder samma Pythonmiljö för alla steg och avbryts om ett steg
+misslyckas. Saknad originaldata ger instruktion om att använda `--download`.
+
+Vid omkörning skrivs bearbetade data, uppdelningar, modeller och
+valideringsrapporter över. Samma data, beroenden och inställningar ska
+användas för att reproducera resultatet. Modellinställningarna ändras
+inte utifrån sluttestets resultat.
+
+Testdelen skapas vid uppdelningen men används inte för träning eller
+modellval. Slututvärdering ingår inte i körflödet utan körs uttryckligen
+med den sparade modellen:
+
+```powershell
+.\.venv\Scripts\python.exe src/final_evaluation.py
+```
+
+Tester för körflödet kontrollerar stegens ordning, Pythonmiljö,
+felhantering och att slututvärdering inte startas automatiskt.
 
 ### Läsa in Yelp-data
 
@@ -154,7 +195,6 @@ Kommandot läser `data/processed/reviews.csv` och skriver
 `data/splits/test.csv`. Uppdelningen använder `random_state=42`,
 stratifieras på klass och håller samma `duplicate_group_id` i en delmängd.
 Analysen skrivs till `reports/data_summary.md`.
-
 
 ### Majoritetsbaseline (uppgift 05)
 
@@ -285,7 +325,7 @@ Kör hela testsviten efter att originaldatasetet har hämtats:
 .\.venv\Scripts\python.exe -m pytest -q
 ```
 
-Vid den genomförda lokala kontrollen passerade samtliga 52 tester.
+Vid den genomförda lokala kontrollen passerade samtliga 60 tester.
 
 ### Resultat och återstående utvärdering
 
@@ -303,7 +343,8 @@ Detaljerade resultat finns i `reports/baseline.md` och
 `reports/model_selection.md`. Valideringsresultaten används för modellval
 och ska inte tolkas som oberoende sluttestresultat.
 
-Slututvärdering på testdata, felanalys och demonstration beskrivs nedan.
+Slututvärdering på testdata och demonstration beskrivs nedan.
+Fördjupad felanalys återstår i en separat uppgift.
 Valideringsresultaten ska inte tolkas som oberoende sluttestresultat.
 
 ### Slututvärdering (uppgift 07 och 08)
@@ -344,6 +385,22 @@ Utan argument frågar programmet efter texten. Tom eller blank text ger ett
 felmeddelande. Vid en lokal körning blev svaren `positiv`, `negativ` och
 `negativ`. De svaren är illustrationer och ingår inte i testresultatet.
 
+Om modellfilen saknas visar programmet ett felmeddelande med instruktion
+om att skapa modellen genom körflödet:
+
+```powershell
+.\.venv\Scripts\python.exe src/run_pipeline.py
+```
+
+Tom eller enbart blank text avvisas innan modellen laddas.
+Vid tom text eller saknad modell avslutas kommandot med felkod 2.
+
+En annan lokal modellfil kan anges med `--model`:
+
+```powershell
+.\.venv\Scripts\python.exe src/predict.py "Great food and friendly service." --model models/tfidf_logistic_regression.joblib
+```
+
 ### Användning av generativ AI
 
-Generativ AI har använts som stöd för planering, kodgranskning och dokumentation. 
+Generativ AI har använts som stöd för planering, kodgranskning och dokumentation.
