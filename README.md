@@ -1,3 +1,51 @@
+# Klassificering av restaurangomdömen
+
+## Problem och syfte
+
+En restaurangansvarig kan behöva gå igenom många omdömen för att hitta
+missnöjda gäster och återkommande problem. Projektet undersöker om
+recensionernas text kan användas för att klassificera engelska
+restaurangomdömen som positiva eller negativa.
+
+Vi jämför en majoritetsbaseline med TF-IDF och logistisk regression.
+Syftet är att utvärdera om textanalys ger bättre resultat än att alltid
+välja den vanligaste klassen.
+
+## Målgrupp och avgränsning
+
+Den tänkta användaren är en restaurangansvarig som vill ha stöd vid
+manuell genomgång av omdömen.
+
+Projektet är en lokal prototyp för korta engelska recensionstexter.
+Det omfattar inte svenska recensioner, en neutral klass, automatisk
+publicering eller automatiska svar till gäster. Modellen ska inte
+ensam avgöra vilka omdömen som behöver uppmärksammas.
+
+## Gruppmedlemmar och planering
+
+- Soroush Gholamreza
+- Josefina Nadafan
+
+Arbetsuppgifter, ansvar och progression följs i
+[GitHub Projects](https://github.com/users/SoroushGReza/projects/17).
+
+## Datakälla och användningsvillkor
+
+Vi använder Yelp-delen av **Sentiment Labelled Sentences**, skapad av
+Dimitrios Kotzias och publicerad av UCI Machine Learning Repository.
+
+Källhänvisning: Kotzias, D. (2015). Sentiment Labelled Sentences [Dataset].
+UCI Machine Learning Repository.
+https://doi.org/10.24432/C57604
+
+Datasetets licens är **CC BY 4.0**. Ursprung, hämtningstidpunkt,
+användningsvillkor och kontroller beskrivs i
+[datakälledokumentationen](docs/data_source.md).
+
+Originalmaterialet innehåller 1 000 meningar med etikett 0 för negativ
+och 1 för positiv. Efter dubbletthanteringen återstår 996 meningar.
+Amazon- och IMDb-delarna används inte.
+
 ## Installation och utvecklingsmiljö
 
 Instruktionerna gäller Windows med PowerShell i VS Code.
@@ -347,6 +395,37 @@ Slututvärdering på testdata och demonstration beskrivs nedan.
 Felanalys och risker finns i `reports/error_analysis.md` och `docs/risks.md`.
 Valideringsresultaten ska inte tolkas som oberoende sluttestresultat.
 
+På den separata testmängden med 200 recensioner blev resultaten:
+
+| Modell | Macro-F1 | Negativ recall | Accuracy |
+| --- | --- | --- | --- |
+| Majoritetsbaseline | 0,333333 | 0,00 | 0,500 |
+| TF-IDF med ord och ordpar + logistisk regression | 0,744841 | 0,72 | 0,745 |
+
+Textmodellen klassificerade 149 av 200 recensioner korrekt.
+Den missade 28 av 100 negativa recensioner och klassificerade
+23 av 100 positiva recensioner som negativa.
+
+Textmodellen förbättrar samtliga redovisade testmått jämfört med baseline,
+men behöver fortfarande mänsklig granskning. Resultaten gäller detta
+begränsade engelskspråkiga underlag och visar inte hur modellen fungerar
+på svenska eller på andra restaurangdata.
+
+### Rapporter och figurer
+
+- [Datakvalitet](reports/data_quality.md)
+- [Datauppdelning](reports/data_summary.md)
+- [Majoritetsbaseline](reports/baseline.md)
+- [Modellval på valideringsdata](reports/model_selection.md)
+- [Slututvärdering](reports/results.md)
+- [Testmått som CSV](reports/metrics_test.csv)
+- [Felanalys](reports/error_analysis.md)
+- [Risker och reservplaner](docs/risks.md)
+
+![Confusion matrix för textmodellen](reports/figures/confusion_text_model.png)
+
+![Jämförelse mellan baseline och textmodell](reports/figures/metric_comparison.png)
+
 ### Slututvärdering (uppgift 07 och 08)
 
 `src/evaluate.py` beräknar macro-F1, negativ recall, accuracy samt precision,
@@ -413,3 +492,6 @@ En annan lokal modellfil kan anges med `--model`:
 ### Användning av generativ AI
 
 Generativ AI har använts som stöd för planering, kodgranskning och dokumentation.
+
+Mer information om stödet och kontrollerna finns i
+[docs/ai_usage.md](docs/ai_usage.md).
