@@ -232,7 +232,8 @@ def render_results(
             "## Regel efter sluttestet",
             "",
             "Modellinställningarna ändras inte efter granskning av testresultatet.",
-            "Felanalys, svenska texter och en eventuell neutral klass är framtida arbete.",
+            "Felanalysen finns i `reports/error_analysis.md` och riskerna i `docs/risks.md`.",
+            "Svenska texter och en eventuell neutral klass är fortfarande framtida arbete.",
             "",
         ]
     )

@@ -344,7 +344,7 @@ Detaljerade resultat finns i `reports/baseline.md` och
 och ska inte tolkas som oberoende sluttestresultat.
 
 Slututvärdering på testdata och demonstration beskrivs nedan.
-Fördjupad felanalys återstår i en separat uppgift.
+Felanalys och risker finns i `reports/error_analysis.md` och `docs/risks.md`.
 Valideringsresultaten ska inte tolkas som oberoende sluttestresultat.
 
 ### Slututvärdering (uppgift 07 och 08)
@@ -367,6 +367,15 @@ Kommandot tränar inte om modellerna och skriver:
 - `reports/figures/`: confusion matrix för respektive modell och ett jämförelsediagram.
 
 Modellinställningarna ändras inte efter att testresultatet har setts.
+
+### Felanalys och risker (uppgift 11)
+
+`reports/error_analysis.md` går igenom felklassificeringar från den befintliga
+testmängden med den sparade textmodellen. Modellen tränas inte om, och
+testuppdelningen ändras inte.
+
+`docs/risks.md` beskriver risker för dataurval, personuppgifter, praktisk
+användning och reproducerbarhet.
 
 ### Demonstration av en ny recension
 
